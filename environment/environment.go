@@ -1,10 +1,10 @@
 package environment
 
 import (
-	"doom-environment/action"
-	"doom-environment/observation"
 	"errors"
 	"fmt"
+	"github.com/agfy/doom-environment/action"
+	"github.com/agfy/doom-environment/observation"
 	"github.com/go-vgo/robotgo"
 	"github.com/vcaesar/bitmap"
 	"os/exec"

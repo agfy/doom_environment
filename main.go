@@ -1,7 +1,7 @@
 package main
 
 import (
-	"doom-environment/environment"
+	"github.com/agfy/doom-environment/environment"
 	"os"
 	"os/signal"
 	"syscall"

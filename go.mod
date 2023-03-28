@@ -1,4 +1,4 @@
-module github.com/agfy/doom-environment
+module github.com/agfy/doom_environment
 
 go 1.19
 

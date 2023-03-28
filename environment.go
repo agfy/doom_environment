@@ -1,10 +1,8 @@
-package environment
+package doom_environment
 
 import (
 	"errors"
 	"fmt"
-	"github.com/agfy/doom-environment/action"
-	"github.com/agfy/doom-environment/observation"
 	"github.com/go-vgo/robotgo"
 	"github.com/vcaesar/bitmap"
 	"os/exec"
@@ -98,10 +96,10 @@ func (e *DoomEnvironment) Start() error {
 	return nil
 }
 
-func (e *DoomEnvironment) Step(act, env int) (observation.Observation, error) {
+func (e *DoomEnvironment) Step(act, env int) (Observation, error) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
-	strAction, exist := action.GetAction(act)
+	strAction, exist := GetAction(act)
 	if !exist {
 		fmt.Println("action not in action space")
 	}
@@ -116,7 +114,7 @@ func (e *DoomEnvironment) Step(act, env int) (observation.Observation, error) {
 	return obs, nil
 }
 
-func (e *DoomEnvironment) GetObservation(env int) observation.Observation {
+func (e *DoomEnvironment) GetObservation(env int) Observation {
 
 	x, y, w, h := robotgo.GetBounds(e.pids[env])
 	println(x, y, w, h)
@@ -125,7 +123,7 @@ func (e *DoomEnvironment) GetObservation(env int) observation.Observation {
 	defer robotgo.FreeBitmap(bit)
 	bitmap.Save(bit, strconv.Itoa(env)+"_test_1.png")
 
-	return observation.Observation{Bitmap: bitMap}
+	return Observation{Bitmap: bitMap}
 }
 
 func (e *DoomEnvironment) Act(action string, env int) error {

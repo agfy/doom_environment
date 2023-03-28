@@ -1,4 +1,4 @@
-package observation
+package doom_environment
 
 import (
 	"github.com/go-vgo/robotgo"

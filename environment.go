@@ -118,7 +118,7 @@ func (e *DoomEnvironment) GetObservation(env int) Observation {
 
 	x, y, w, h := robotgo.GetBounds(e.pids[env])
 	println(x, y, w, h)
-	bit := robotgo.CaptureScreen(x-10, y-8, w, h-2)
+	bit := robotgo.CaptureScreen(x-10, y-8, w, h-4)
 	bitMap := robotgo.ToBitmap(bit)
 	defer robotgo.FreeBitmap(bit)
 	bitmap.Save(bit, strconv.Itoa(env)+"_test_1.png")

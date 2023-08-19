@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-vgo/robotgo"
-	"github.com/vcaesar/bitmap"
+	"image"
+	"image/jpeg"
+	"os"
 	"os/exec"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -24,27 +25,32 @@ func Create(numberOfWindows int) (*DoomEnvironment, error) {
 			cmd := exec.Command("prboom-plus", "doom1")
 			err := cmd.Run()
 			if err != nil {
-				fmt.Println("an error occurred.", err.Error())
+				fmt.Println("an error occurred while starting doom", err.Error())
 			}
 		}()
 	}
-	time.Sleep(time.Second)
 
-	pids, err := robotgo.FindIds(windowName)
-	if err != nil {
-		return nil, err
-	}
-	if len(pids) != numberOfWindows {
-		return nil, errors.New("number of process not equal numberOfWindows")
+	numberOfTries := 10
+	for i := 0; i < numberOfTries; i++ {
+		pids, err := robotgo.FindIds(windowName)
+		if err != nil {
+			return nil, err
+		}
+		if len(pids) == numberOfWindows {
+			time.Sleep(time.Second)
+			return &DoomEnvironment{pids: pids}, nil
+		}
+
+		time.Sleep(time.Second)
 	}
 
-	return &DoomEnvironment{pids: pids}, nil
+	return nil, errors.New("number of process not equal numberOfWindows")
 }
 
 func (e *DoomEnvironment) Start() error {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
-	for i, pid := range e.pids {
+	for _, pid := range e.pids {
 		time.Sleep(100 * time.Millisecond)
 		err := robotgo.KeyTap("enter")
 		if err != nil {
@@ -91,12 +97,12 @@ func (e *DoomEnvironment) Start() error {
 			return err
 		}
 
-		e.GetObservation(i)
+		//e.GetObservation(i)
 	}
 	return nil
 }
 
-func (e *DoomEnvironment) Step(act, env int) (Observation, error) {
+func (e *DoomEnvironment) Step(act, env int) (*Observation, error) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	strAction, exist := GetAction(act)
@@ -114,16 +120,29 @@ func (e *DoomEnvironment) Step(act, env int) (Observation, error) {
 	return obs, nil
 }
 
-func (e *DoomEnvironment) GetObservation(env int) Observation {
-
+func (e *DoomEnvironment) GetObservation(env int) *Observation {
 	x, y, w, h := robotgo.GetBounds(e.pids[env])
-	println(x, y, w, h)
-	bit := robotgo.CaptureScreen(x-10, y-8, w, h-4)
-	bitMap := robotgo.ToBitmap(bit)
-	defer robotgo.FreeBitmap(bit)
-	bitmap.Save(bit, strconv.Itoa(env)+"_test_1.png")
+	img := robotgo.CaptureImg(x-10, y-8, w, h-3)
 
-	return Observation{Bitmap: bitMap}
+	return &Observation{Image: img}
+}
+
+func (e *DoomEnvironment) Save(name string, img image.Image) error {
+	f, err := os.Create(name)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	opt := jpeg.Options{
+		Quality: 90,
+	}
+	err = jpeg.Encode(f, img, &opt)
+	//err = png.Encode(f, img)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (e *DoomEnvironment) Act(action string, env int) error {
@@ -147,4 +166,13 @@ func (e *DoomEnvironment) Reset() {
 
 func (e *DoomEnvironment) Record() {
 
+}
+
+func (e *DoomEnvironment) Close() {
+	for _, pid := range e.pids {
+		err := robotgo.Kill(pid)
+		if err != nil {
+			fmt.Println("an error occurred while killing doom", err.Error())
+		}
+	}
 }

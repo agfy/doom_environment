@@ -1,10 +1,10 @@
 package doom_environment
 
 import (
-	"github.com/go-vgo/robotgo"
+	"image"
 )
 
 type Observation struct {
-	Bitmap robotgo.Bitmap
-	Score  int
+	Image image.Image
+	Score int
 }

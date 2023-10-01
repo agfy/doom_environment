@@ -1,10 +1,8 @@
 package main
 
 import (
-	"strconv"
-	"time"
-
 	"github.com/agfy/doom_environment"
+	"time"
 )
 
 func main() {
@@ -21,14 +19,25 @@ func main() {
 		return
 	}
 
-	var obs *doom_environment.Observation
+	//	var obs *doom_environment.Observation
 	for i := 0; i < 1000; i++ {
-		obs = env.GetObservation(0)
-		err = env.Save("doom_"+strconv.Itoa(i)+".jpg", obs.Image)
-		if err != nil {
-			println("failed to save observation", err.Error())
-			return
-		}
+		_ = env.GetObservation(0)
+		//err = env.Save("doom_"+strconv.Itoa(i)+".jpg", bitmap)
+		//if err != nil {
+		//	println("failed to save observation", err.Error())
+		//	return
+		//}
+		//bitmap := robotgo.CaptureImg(640, 337, 640, 514)
+		//err = env.Save("doom_"+strconv.Itoa(i)+".jpg", bitmap)
+		// use `defer robotgo.FreeBitmap(bit)` to free the bitmap
+		//defer robotgo.FreeBitmap(bitmap)
+		//fmt.Println("...", bitmap)
+
+		//err = robotgo.SavePng(bitmap, "doom_"+strconv.Itoa(i)+".png")
+		//if err != nil {
+		//	println("failed to start environment", err.Error())
+		//	return
+		//}
 
 		time.Sleep(time.Second)
 	}

@@ -3,10 +3,10 @@ package doom_environment
 import (
 	"errors"
 	"fmt"
+	"github.com/agfy/doom_environment/check_points"
+	"github.com/agfy/doom_environment/image_comparer"
 	"github.com/go-vgo/robotgo"
 	"image"
-	"image/jpeg"
-	"os"
 	"os/exec"
 	"sync"
 	"time"
@@ -15,8 +15,10 @@ import (
 var windowName = "prboom-plus"
 
 type DoomEnvironment struct {
-	pids  []int32
-	mutex sync.Mutex
+	pids        []int32
+	mutex       sync.Mutex
+	checkPoints check_points.CheckPoints
+	maxScores   []int
 }
 
 func Create(numberOfWindows int) (*DoomEnvironment, error) {
@@ -30,6 +32,11 @@ func Create(numberOfWindows int) (*DoomEnvironment, error) {
 		}()
 	}
 
+	checkPoints, err := check_points.NewCheckPoints("/home/max/GolandProjects/doom-environment/check_points/loc_1_lvl_1/sample_6/")
+	if err != nil {
+		fmt.Println("failed to create checkpoints", err.Error())
+	}
+
 	numberOfTries := 10
 	for i := 0; i < numberOfTries; i++ {
 		pids, err := robotgo.FindIds(windowName)
@@ -38,7 +45,11 @@ func Create(numberOfWindows int) (*DoomEnvironment, error) {
 		}
 		if len(pids) == numberOfWindows {
 			time.Sleep(time.Second)
-			return &DoomEnvironment{pids: pids}, nil
+			return &DoomEnvironment{
+				checkPoints: checkPoints,
+				pids:        pids,
+				maxScores:   make([]int, numberOfWindows),
+			}, nil
 		}
 
 		time.Sleep(time.Second)
@@ -102,47 +113,43 @@ func (e *DoomEnvironment) Start() error {
 	return nil
 }
 
-func (e *DoomEnvironment) Step(act, env int) (*Observation, error) {
+func (e *DoomEnvironment) Step(act, env int) error {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	strAction, exist := GetAction(act)
 	if !exist {
-		fmt.Println("action not in action space")
+		return errors.New("action not in action space")
 	}
 
 	err := e.Act(strAction, env)
 	if err != nil {
-		fmt.Println(err)
-	}
-
-	obs := e.GetObservation(env)
-
-	return obs, nil
-}
-
-func (e *DoomEnvironment) GetObservation(env int) *Observation {
-	x, y, w, h := robotgo.GetBounds(e.pids[env])
-	img := robotgo.CaptureImg(x-10, y-8, w, h-3)
-
-	return &Observation{Image: img}
-}
-
-func (e *DoomEnvironment) Save(name string, img image.Image) error {
-	f, err := os.Create(name)
-	if err != nil {
 		return err
 	}
-	defer f.Close()
 
-	opt := jpeg.Options{
-		Quality: 90,
-	}
-	err = jpeg.Encode(f, img, &opt)
-	//err = png.Encode(f, img)
-	if err != nil {
-		return err
-	}
 	return nil
+}
+
+func (e *DoomEnvironment) GetObservation(env int) image.Image {
+	//x, y, w, h := robotgo.GetBounds(e.pids[env]) causes x11 error "Maximum number of clients reached"
+	//img := robotgo.CaptureImg(x-10, y-8, w, h-3)
+	img := robotgo.CaptureImg(640, 337, 640, 514)
+
+	return img
+}
+
+func (e *DoomEnvironment) GetScore(env int) (int, error) {
+	obs := e.GetObservation(env)
+	for _, checkPoint := range e.checkPoints.Points {
+		eq, err := image_comparer.AreImagesEqual(image_comparer.Samplify(obs, 6), checkPoint.Img)
+		if err != nil {
+			return 0, err
+		}
+		if eq && checkPoint.Score > e.maxScores[env] {
+			e.maxScores[env] = checkPoint.Score
+		}
+	}
+
+	return e.maxScores[env], nil
 }
 
 func (e *DoomEnvironment) Act(action string, env int) error {

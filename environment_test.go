@@ -1,9 +1,7 @@
 package doom_environment
 
 import (
-	"strconv"
 	"testing"
-	"time"
 )
 
 func TestPlay(t *testing.T) {
@@ -13,14 +11,11 @@ func TestPlay(t *testing.T) {
 	}
 	defer env.Close()
 
-	var obs *Observation
-	for i := 0; i < 1000; i++ {
-		obs = env.GetObservation(0)
-		err = env.Save("doom_"+strconv.Itoa(i)+".jpg", obs.Image)
+	for {
+		score, err := env.GetScore(0)
 		if err != nil {
-			t.Error(err)
+			t.Error("failed to get score", err)
 		}
-
-		time.Sleep(time.Second)
+		println(score)
 	}
 }

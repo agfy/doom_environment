@@ -38,7 +38,7 @@ func Create(params map[string]interface{}) (*DoomEnvironment, error) {
 		}()
 	}
 
-	checkPoints, err := check_points.NewCheckPoints("/home/max/GolandProjects/doom-environment/check_points/loc_1_lvl_1/sample_6/")
+	checkPoints, err := check_points.NewCheckPoints("check_points/loc_1_lvl_1/sample_6/")
 	if err != nil {
 		fmt.Println("failed to create checkpoints", err.Error())
 	}

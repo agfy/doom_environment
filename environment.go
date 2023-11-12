@@ -21,7 +21,13 @@ type DoomEnvironment struct {
 	maxScores   []int
 }
 
-func Create(numberOfWindows int) (*DoomEnvironment, error) {
+func Create(params map[string]interface{}) (*DoomEnvironment, error) {
+	numberOfWindowsInt, ok := params["number_of_windows"]
+	if !ok {
+		return nil, errors.New("missing number_of_windows")
+	}
+	numberOfWindows := numberOfWindowsInt.(int)
+
 	for i := 0; i < numberOfWindows; i++ {
 		go func() {
 			cmd := exec.Command("prboom-plus", "doom1")
@@ -58,7 +64,7 @@ func Create(numberOfWindows int) (*DoomEnvironment, error) {
 	return nil, errors.New("number of process not equal numberOfWindows")
 }
 
-func (e *DoomEnvironment) Start() error {
+func (e *DoomEnvironment) Reset() error {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	for _, pid := range e.pids {
@@ -165,10 +171,6 @@ func (e *DoomEnvironment) Act(action string, env int) error {
 	}
 
 	return nil
-}
-
-func (e *DoomEnvironment) Reset() {
-
 }
 
 func (e *DoomEnvironment) Record() {

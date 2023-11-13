@@ -8,6 +8,7 @@ import (
 	"github.com/go-vgo/robotgo"
 	"image"
 	"os/exec"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -21,13 +22,7 @@ type DoomEnvironment struct {
 	maxScores   []int
 }
 
-func Create(params map[string]interface{}) (*DoomEnvironment, error) {
-	numberOfWindowsInt, ok := params["number_of_windows"]
-	if !ok {
-		return nil, errors.New("missing number_of_windows")
-	}
-	numberOfWindows := numberOfWindowsInt.(int)
-
+func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
 	for i := 0; i < numberOfWindows; i++ {
 		go func() {
 			cmd := exec.Command("prboom-plus", "doom1")
@@ -38,7 +33,7 @@ func Create(params map[string]interface{}) (*DoomEnvironment, error) {
 		}()
 	}
 
-	checkPoints, err := check_points.NewCheckPoints("check_points/loc_1_lvl_1/sample_6/")
+	checkPoints, err := check_points.NewCheckPoints("check_points/loc_1_lvl_1/sample_" + strconv.Itoa(samples) + "/")
 	if err != nil {
 		fmt.Println("failed to create checkpoints", err.Error())
 	}

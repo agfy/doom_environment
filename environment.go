@@ -13,9 +13,10 @@ import (
 	"time"
 )
 
-var windowName = "prboom-plus"
+const windowName = "prboom-plus"
 
 type DoomEnvironment struct {
+	samples     int
 	pids        []int32
 	mutex       sync.Mutex
 	checkPoints check_points.CheckPoints
@@ -50,6 +51,7 @@ func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
 				checkPoints: checkPoints,
 				pids:        pids,
 				maxScores:   make([]int, numberOfWindows),
+				samples:     samples,
 			}, nil
 		}
 
@@ -141,7 +143,7 @@ func (e *DoomEnvironment) GetObservation(env int) image.Image {
 func (e *DoomEnvironment) GetScore(env int) (int, error) {
 	obs := e.GetObservation(env)
 	for _, checkPoint := range e.checkPoints.Points {
-		eq, err := image_comparer.AreImagesEqual(image_comparer.Samplify(obs, 6), checkPoint.Img)
+		eq, err := image_comparer.AreImagesEqual(image_comparer.Samplify(obs, e.samples), checkPoint.Img)
 		if err != nil {
 			return 0, err
 		}

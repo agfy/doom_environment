@@ -6,14 +6,14 @@ import (
 )
 
 func main() {
-	env, err := doom_environment.Create(1)
+	env, err := doom_environment.Create(1, 1)
 	if err != nil {
 		println("failed to create environment", err.Error())
 		return
 	}
 	defer env.Close()
 
-	err = env.Start()
+	err = env.Reset()
 	if err != nil {
 		println("failed to start environment", err.Error())
 		return

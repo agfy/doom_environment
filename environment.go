@@ -13,7 +13,11 @@ import (
 	"time"
 )
 
-const windowName = "prboom-plus"
+const (
+	windowName = "prboom-plus"
+	width      = 640
+	height     = 514
+)
 
 type DoomEnvironment struct {
 	samples     int
@@ -59,6 +63,14 @@ func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
 	}
 
 	return nil, errors.New("number of process not equal numberOfWindows")
+}
+
+func (e *DoomEnvironment) GetInputNeuronNumber() int {
+	return width / e.samples
+}
+
+func (e *DoomEnvironment) GetOutputNeuronNumber() int {
+	return height / e.samples
 }
 
 func (e *DoomEnvironment) Reset() error {

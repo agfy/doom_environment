@@ -20,11 +20,12 @@ const (
 )
 
 type DoomEnvironment struct {
-	samples     int
-	pids        []int32
-	mutex       sync.Mutex
-	checkPoints check_points.CheckPoints
-	maxScores   []int
+	samples         int
+	pids            []int32
+	mutex           sync.Mutex
+	checkPoints     check_points.CheckPoints
+	maxScores       []int
+	numberOfWindows int
 }
 
 func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
@@ -71,6 +72,10 @@ func (e *DoomEnvironment) GetInputNeuronNumber() int {
 
 func (e *DoomEnvironment) GetOutputNeuronNumber() int {
 	return height / e.samples
+}
+
+func (e *DoomEnvironment) GetWindowNumber() int {
+	return e.numberOfWindows
 }
 
 func (e *DoomEnvironment) Reset() error {

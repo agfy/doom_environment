@@ -206,7 +206,6 @@ func (e *DoomEnvironment) Act(action string, env int) error {
 }
 
 func (e *DoomEnvironment) Record() {
-
 }
 
 func (e *DoomEnvironment) Close() {

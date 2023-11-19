@@ -152,7 +152,7 @@ func (e *DoomEnvironment) Step(act, env int) error {
 func (e *DoomEnvironment) GetObservation(env int) image.Image {
 	//x, y, w, h := robotgo.GetBounds(e.pids[env]) causes x11 error "Maximum number of clients reached"
 	//img := robotgo.CaptureImg(x-10, y-8, w, h-3)
-	img := robotgo.CaptureImg(640, 337, 640, 514)
+	img := robotgo.CaptureImg(640, 337, width, height)
 
 	return img
 }

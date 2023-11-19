@@ -14,9 +14,10 @@ import (
 )
 
 const (
-	windowName = "prboom-plus"
-	width      = 640
-	height     = 514
+	windowName     = "prboom-plus"
+	width          = 640
+	height         = 514
+	maxColourValue = 0xFFFF
 )
 
 type DoomEnvironment struct {
@@ -128,7 +129,7 @@ func (e *DoomEnvironment) Reset() error {
 			return err
 		}
 
-		//e.GetObservation(i)
+		//e.GetImage(i)
 	}
 	return nil
 }
@@ -149,7 +150,7 @@ func (e *DoomEnvironment) Step(act, env int) error {
 	return nil
 }
 
-func (e *DoomEnvironment) GetObservation(env int) image.Image {
+func (e *DoomEnvironment) GetImage(env int) image.Image {
 	//x, y, w, h := robotgo.GetBounds(e.pids[env]) causes x11 error "Maximum number of clients reached"
 	//img := robotgo.CaptureImg(x-10, y-8, w, h-3)
 	img := robotgo.CaptureImg(640, 337, width, height)
@@ -157,8 +158,25 @@ func (e *DoomEnvironment) GetObservation(env int) image.Image {
 	return img
 }
 
+func (e *DoomEnvironment) GetObservation(env int) []int {
+	img := e.GetImage(env)
+	bounds := img.Bounds()
+	result := make([]int, 3*bounds.Max.Y*bounds.Max.X)
+	var r, g, b uint32
+	for x := 0; x < bounds.Max.X; x++ {
+		for y := 0; y < bounds.Max.Y; y++ {
+			r, g, b, _ = img.At(x, y).RGBA()
+			result[3*(x+y*width)] = int(9 * r / maxColourValue)
+			result[3*(x+y*width)+1] = int(9 * g / maxColourValue)
+			result[3*(x+y*width)+2] = int(9 * b / maxColourValue)
+		}
+	}
+
+	return result
+}
+
 func (e *DoomEnvironment) GetScore(env int) (int, error) {
-	obs := e.GetObservation(env)
+	obs := e.GetImage(env)
 	for _, checkPoint := range e.checkPoints.Points {
 		eq, err := image_comparer.AreImagesEqual(image_comparer.Samplify(obs, e.samples), checkPoint.Img)
 		if err != nil {

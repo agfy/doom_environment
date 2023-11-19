@@ -21,7 +21,7 @@ func main() {
 
 	//	var obs *doom_environment.Observation
 	for i := 0; i < 1000; i++ {
-		_ = env.GetObservation(0)
+		_ = env.GetImage(0)
 		//err = env.Save("doom_"+strconv.Itoa(i)+".jpg", bitmap)
 		//if err != nil {
 		//	println("failed to save observation", err.Error())

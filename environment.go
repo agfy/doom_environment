@@ -33,7 +33,7 @@ const (
 
 type DoomEnvironment struct {
 	samples         int
-	pids            []int32
+	pids            []int
 	mutex           sync.Mutex
 	checkPoints     check_points.CheckPoints
 	maxScores       []int
@@ -95,52 +95,45 @@ func (e *DoomEnvironment) Reset() error {
 	defer e.mutex.Unlock()
 	for _, pid := range e.pids {
 		time.Sleep(100 * time.Millisecond)
-		err := robotgo.KeyTap("enter")
-		if err != nil {
-			return err
-		}
-
-		err = robotgo.ActivePID(pid)
+		err := robotgo.KeyTap("enter", pid)
 		if err != nil {
 			return err
 		}
 
 		time.Sleep(100 * time.Millisecond)
-		err = robotgo.KeyTap("enter")
+		err = robotgo.KeyTap("enter", pid)
 		if err != nil {
 			return err
 		}
-		err = robotgo.KeyTap("esc")
-		if err != nil {
-			return err
-		}
-		time.Sleep(100 * time.Millisecond)
-		err = robotgo.KeyTap("enter")
+		err = robotgo.KeyTap("esc", pid)
 		if err != nil {
 			return err
 		}
 		time.Sleep(100 * time.Millisecond)
-		err = robotgo.KeyTap("enter")
+		err = robotgo.KeyTap("enter", pid)
 		if err != nil {
 			return err
 		}
 		time.Sleep(100 * time.Millisecond)
-		err = robotgo.KeyTap("up")
+		err = robotgo.KeyTap("enter", pid)
 		if err != nil {
 			return err
 		}
 		time.Sleep(100 * time.Millisecond)
-		err = robotgo.KeyTap("up")
+		err = robotgo.KeyTap("up", pid)
 		if err != nil {
 			return err
 		}
 		time.Sleep(100 * time.Millisecond)
-		err = robotgo.KeyTap("enter")
+		err = robotgo.KeyTap("up", pid)
 		if err != nil {
 			return err
 		}
-
-		//e.GetImage(i)
+		time.Sleep(100 * time.Millisecond)
+		err = robotgo.KeyTap("enter", pid)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -202,13 +195,7 @@ func (e *DoomEnvironment) GetScore(env int) (int, error) {
 }
 
 func (e *DoomEnvironment) Act(action string, env int) error {
-	err := robotgo.ActivePID(e.pids[env])
-	if err != nil {
-		return err
-	}
-
-	time.Sleep(100 * time.Millisecond)
-	err = robotgo.KeyTap(action)
+	err := robotgo.KeyTap(action, e.pids[env])
 	if err != nil {
 		return err
 	}

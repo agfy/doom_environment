@@ -79,11 +79,11 @@ func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
 }
 
 func (e *DoomEnvironment) GetInputNeuronNumber() int {
-	return width / e.samples
+	return width * height / e.samples
 }
 
 func (e *DoomEnvironment) GetOutputNeuronNumber() int {
-	return height / e.samples
+	return len(ActionSpace)
 }
 
 func (e *DoomEnvironment) GetWindowNumber() int {

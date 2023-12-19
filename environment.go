@@ -7,6 +7,7 @@ import (
 	"github.com/agfy/doom_environment/image_comparer"
 	"github.com/go-vgo/robotgo"
 	"image"
+	"os"
 	"os/exec"
 	"strconv"
 	"sync"
@@ -50,10 +51,14 @@ func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
 			}
 		}()
 	}
-
-	checkPoints, err := check_points.NewCheckPoints("check_points/loc_1_lvl_1/sample_" + strconv.Itoa(samples) + "/")
+	pwd, err := os.Getwd()
 	if err != nil {
-		fmt.Println("failed to create checkpoints", err.Error())
+		return nil, fmt.Errorf("get work directory %v", err)
+	}
+
+	checkPoints, err := check_points.NewCheckPoints(pwd + "/check_points/loc_1_lvl_1/sample_" + strconv.Itoa(samples) + "/")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create checkpoints %v", err)
 	}
 
 	numberOfTries := 10

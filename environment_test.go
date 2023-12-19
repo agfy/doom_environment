@@ -5,7 +5,7 @@ import (
 )
 
 func TestPlay(t *testing.T) {
-	env, err := Create(map[string]interface{}{"number_of_windows": 1})
+	env, err := Create(1, 6)
 	if err != nil {
 		t.Error("failed to create environment", err)
 	}

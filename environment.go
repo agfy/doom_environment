@@ -69,10 +69,11 @@ func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
 		if len(pids) == numberOfWindows {
 			time.Sleep(time.Second)
 			return &DoomEnvironment{
-				checkPoints: checkPoints,
-				pids:        pids,
-				maxScores:   make([]int, numberOfWindows),
-				samples:     samples,
+				checkPoints:     checkPoints,
+				pids:            pids,
+				maxScores:       make([]int, numberOfWindows),
+				samples:         samples,
+				numberOfWindows: numberOfWindows,
 			}, nil
 		}
 

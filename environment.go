@@ -168,7 +168,7 @@ func (e *DoomEnvironment) GetImage(env int) image.Image {
 }
 
 func (e *DoomEnvironment) GetObservation(env int) []int {
-	img := e.GetImage(env)
+	img := image_comparer.Samplify(e.GetImage(env), e.samples)
 	bounds := img.Bounds()
 	result := make([]int, 3*bounds.Max.Y*bounds.Max.X)
 	var r, g, b uint32

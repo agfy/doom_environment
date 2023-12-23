@@ -46,9 +46,9 @@ func AreImagesEqual(img1, img2 image.Image) (bool, error) {
 
 		}
 	}
-	euqalPixelPercent := equalPixels * 100 / (img1.Bounds().Size().Y * img1.Bounds().Size().X)
-	fmt.Printf("%d ", euqalPixelPercent)
-	if euqalPixelPercent > 75 {
+	equalPixelPercent := equalPixels * 100 / (img1.Bounds().Size().Y * img1.Bounds().Size().X)
+	fmt.Printf("equal pixel percent %d ", equalPixelPercent)
+	if equalPixelPercent > 75 {
 		return true, nil
 	}
 	return false, nil

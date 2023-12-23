@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	env, err := doom_environment.Create(1)
+	env, err := doom_environment.Create(1, 0)
 	if err != nil {
 		_ = fmt.Errorf("failed to create environment %v", err)
 	}

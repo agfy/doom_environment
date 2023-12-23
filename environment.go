@@ -175,9 +175,9 @@ func (e *DoomEnvironment) GetObservation(env int) []int {
 	for x := 0; x < bounds.Max.X; x++ {
 		for y := 0; y < bounds.Max.Y; y++ {
 			r, g, b, _ = img.At(x, y).RGBA()
-			result[3*(x+y*width)] = int(9 * r / maxColourValue)
-			result[3*(x+y*width)+1] = int(9 * g / maxColourValue)
-			result[3*(x+y*width)+2] = int(9 * b / maxColourValue)
+			result[3*(x+y*bounds.Max.X)] = int(9 * r / maxColourValue)
+			result[3*(x+y*bounds.Max.X)+1] = int(9 * g / maxColourValue)
+			result[3*(x+y*bounds.Max.X)+2] = int(9 * b / maxColourValue)
 		}
 	}
 

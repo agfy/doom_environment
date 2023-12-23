@@ -13,6 +13,8 @@ func TestPlay(t *testing.T) {
 
 	for {
 		score, err := env.GetScore(0)
+		//input := env.GetObservation(0)
+		//println(len(input))
 		if err != nil {
 			t.Error("failed to get score", err)
 		}

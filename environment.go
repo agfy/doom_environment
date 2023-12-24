@@ -27,10 +27,9 @@ var ActionSpace = map[int]string{
 }
 
 const (
-	windowName     = "prboom-plus"
-	width          = 640
-	height         = 514
-	maxColourValue = 0xFFFF
+	windowName = "prboom-plus"
+	width      = 640
+	height     = 514
 )
 
 type DoomEnvironment struct {

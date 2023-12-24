@@ -167,34 +167,8 @@ func (e *DoomEnvironment) GetImage(env int) image.Image {
 	return img
 }
 
-func (e *DoomEnvironment) GetObservation(env int) []int {
-	img := image_comparer.Samplify(e.GetImage(env), e.samples)
-	bounds := img.Bounds()
-	result := make([]int, 3*bounds.Max.Y*bounds.Max.X)
-	var r, g, b uint32
-	for x := 0; x < bounds.Max.X; x++ {
-		for y := 0; y < bounds.Max.Y; y++ {
-			r, g, b, _ = img.At(x, y).RGBA()
-			signalR := int(9 * r / maxColourValue)
-			if signalR > 8 {
-				signalR = 8
-			}
-			signalG := int(9 * g / maxColourValue)
-			if signalG > 8 {
-				signalG = 8
-			}
-			signalB := int(9 * b / maxColourValue)
-			if signalB > 8 {
-				signalB = 8
-			}
-
-			result[3*(x+y*bounds.Max.X)] = signalR
-			result[3*(x+y*bounds.Max.X)+1] = signalG
-			result[3*(x+y*bounds.Max.X)+2] = signalB
-		}
-	}
-
-	return result
+func (e *DoomEnvironment) GetObservation(env int) image.Image {
+	return image_comparer.Samplify(e.GetImage(env), e.samples)
 }
 
 func (e *DoomEnvironment) GetScore(env int) (int, error) {

@@ -186,6 +186,7 @@ func (e *DoomEnvironment) GetScore(env int) (int, error) {
 }
 
 func (e *DoomEnvironment) Act(action string, env int) error {
+	robotgo.KeySleep = 100
 	err := robotgo.KeyTap(action, e.pids[env])
 	if err != nil {
 		return err

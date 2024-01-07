@@ -142,15 +142,19 @@ func (e *DoomEnvironment) Reset() error {
 	return nil
 }
 
-func (e *DoomEnvironment) Step(act, env int) error {
+func (e *DoomEnvironment) Step(acts []int, env int) error {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
-	strAction, exist := e.GetAction(act)
-	if !exist {
-		return errors.New("action not in action space")
+	strActions := make([]string, len(acts))
+	for i, act := range acts {
+		strAction, exist := e.GetAction(act)
+		if !exist {
+			return errors.New("action not in action space")
+		}
+		strActions[i] = strAction
 	}
 
-	err := e.Act(strAction, env)
+	err := e.Act(strActions, env)
 	if err != nil {
 		return err
 	}
@@ -185,8 +189,18 @@ func (e *DoomEnvironment) GetScore(env int) (int, error) {
 	return e.maxScores[env], nil
 }
 
-func (e *DoomEnvironment) Act(action string, env int) error {
-	err := robotgo.KeyTap(action, e.pids[env])
+func (e *DoomEnvironment) Act(actions []string, env int) error {
+	if len(actions) == 0 {
+		return errors.New("empty actions")
+	}
+	act := actions[0]
+	args := make([]interface{}, len(actions))
+	args[0] = e.pids[env]
+	for i := 1; i < len(actions); i++ {
+		args[i] = actions[i]
+	}
+
+	err := robotgo.KeyTap(act, args)
 	if err != nil {
 		return err
 	}

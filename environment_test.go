@@ -34,9 +34,9 @@ func TestPlay(t *testing.T) {
 	if err != nil {
 		t.Error("failed to reset environment", err)
 	}
-	stepDuration := 100 * time.Millisecond
+	stepDuration := 300 * time.Millisecond
 
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 10; i++ {
 		err = env.Step([]bool{true, false, false, false, false, false, false, false}, 0)
 		if err != nil {
 			t.Error(err)
@@ -44,7 +44,7 @@ func TestPlay(t *testing.T) {
 		time.Sleep(stepDuration)
 	}
 
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 10; i++ {
 		err = env.Step([]bool{false, true, false, false, false, false, false, false}, 0)
 		if err != nil {
 			t.Error(err)
@@ -52,7 +52,7 @@ func TestPlay(t *testing.T) {
 		time.Sleep(stepDuration)
 	}
 
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 10; i++ {
 		err = env.Step([]bool{true, false, true, false, false, false, false, false}, 0)
 		if err != nil {
 			t.Error(err)
@@ -60,11 +60,13 @@ func TestPlay(t *testing.T) {
 		time.Sleep(stepDuration)
 	}
 
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 10; i++ {
 		err = env.Step([]bool{false, true, false, true, false, false, false, false}, 0)
 		if err != nil {
 			t.Error(err)
 		}
 		time.Sleep(stepDuration)
 	}
+
+	env.Close()
 }

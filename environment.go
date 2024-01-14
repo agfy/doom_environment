@@ -217,8 +217,14 @@ func (e *DoomEnvironment) Record() {
 }
 
 func (e *DoomEnvironment) Close() {
-	for _, pid := range e.pids {
-		err := robotgo.Kill(pid)
+	for i, pid := range e.pids {
+		err := e.Step([]bool{false, false, false, false, false, false, false, false}, i)
+		if err != nil {
+			fmt.Println("an error occurred while step", err.Error())
+		}
+		time.Sleep(300 * time.Millisecond)
+
+		err = robotgo.Kill(pid)
 		if err != nil {
 			fmt.Println("an error occurred while killing doom", err.Error())
 		}

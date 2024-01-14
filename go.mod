@@ -1,6 +1,8 @@
 module github.com/agfy/doom_environment
 
-go 1.19
+go 1.21
+
+toolchain go1.21.6
 
 require (
 	github.com/go-vgo/robotgo v1.0.0-rc2.1

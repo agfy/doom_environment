@@ -212,19 +212,19 @@ func (e *DoomEnvironment) Act(action string, env int) error {
 	return nil
 }
 
+func (e *DoomEnvironment) Stop(env int) error {
+	err := e.Step([]bool{false, false, false, false, false, false, false, false}, env)
+	time.Sleep(300 * time.Millisecond)
+	return err
+}
+
 func (e *DoomEnvironment) Record() {
 	println("useless commit")
 }
 
 func (e *DoomEnvironment) Close() {
-	for i, pid := range e.pids {
-		err := e.Step([]bool{false, false, false, false, false, false, false, false}, i)
-		if err != nil {
-			fmt.Println("an error occurred while step", err.Error())
-		}
-		time.Sleep(300 * time.Millisecond)
-
-		err = robotgo.Kill(pid)
+	for _, pid := range e.pids {
+		err := robotgo.Kill(pid)
 		if err != nil {
 			fmt.Println("an error occurred while killing doom", err.Error())
 		}

@@ -39,7 +39,7 @@ type DoomEnvironment struct {
 	checkPoints     check_points.CheckPoints
 	maxScores       []int
 	numberOfWindows int
-	previousAction  []bool
+	previousAction  []time.Time
 }
 
 func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
@@ -74,7 +74,7 @@ func Create(numberOfWindows, samples int) (*DoomEnvironment, error) {
 				maxScores:       make([]int, numberOfWindows),
 				samples:         samples,
 				numberOfWindows: numberOfWindows,
-				previousAction:  make([]bool, len(ActionSpace)),
+				previousAction:  make([]time.Time, len(ActionSpace)),
 			}, nil
 		}
 
@@ -145,32 +145,44 @@ func (e *DoomEnvironment) Reset() error {
 }
 
 func (e *DoomEnvironment) Step(acts []bool, env int) error {
+	coolown := 500 * time.Millisecond
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	for i, act := range acts {
-		if (e.previousAction[i] && act) || (!e.previousAction[i] && !act) {
-			continue
-		} else if !e.previousAction[i] && act {
-			strAction, exist := e.GetAction(i)
-			if !exist {
-				return errors.New("action not in action space")
-			}
-			err := robotgo.KeyToggle(strAction, e.pids[env])
-			if err != nil {
-				return fmt.Errorf("KeyDown falied: %w", err)
-			}
-		} else {
-			strAction, exist := e.GetAction(i)
-			if !exist {
-				return errors.New("action not in action space")
-			}
-			err := robotgo.KeyToggle(strAction, e.pids[env], "up")
-			if err != nil {
-				return fmt.Errorf("KeyDown falied: %w", err)
+		//strAction, exist := e.GetAction(i)
+		//if !exist {
+		//	return errors.New("action not in action space")
+		//}
+		//err := e.Act(strAction, env)
+		//if err != nil {
+		//	return fmt.Errorf("KeyDown falied: %w", err)
+		//}
+		if e.previousAction[i].Add(coolown).Before(time.Now()) {
+			if act {
+				strAction, exist := e.GetAction(i)
+				if !exist {
+					return errors.New("action not in action space")
+				}
+				fmt.Printf("KeyDown %s\n", strAction)
+				err := robotgo.KeyToggle(strAction, e.pids[env])
+				if err != nil {
+					return fmt.Errorf("KeyDown falied: %w", err)
+				}
+				e.previousAction[i] = time.Now()
+			} else if !e.previousAction[i].IsZero() && !act {
+				strAction, exist := e.GetAction(i)
+				if !exist {
+					return errors.New("action not in action space")
+				}
+				fmt.Printf("KeyUp %s\nw", strAction)
+				err := robotgo.KeyToggle(strAction, e.pids[env], "up")
+				if err != nil {
+					return fmt.Errorf("KeyUpw falied: %w", err)
+				}
+				e.previousAction[i] = time.Time{}
 			}
 		}
 	}
-	e.previousAction = acts
 
 	return nil
 }
@@ -203,8 +215,9 @@ func (e *DoomEnvironment) GetScore(env int) (int, error) {
 }
 
 func (e *DoomEnvironment) Act(action string, env int) error {
-	robotgo.KeySleep = 100
+	robotgo.KeySleep = 500
 	err := robotgo.KeyTap(action, e.pids[env])
+	//err := robotgo.KeyTap(action, e.pids[env])
 	if err != nil {
 		return err
 	}
@@ -223,8 +236,14 @@ func (e *DoomEnvironment) Record() {
 }
 
 func (e *DoomEnvironment) Close() {
-	for _, pid := range e.pids {
-		err := robotgo.Kill(pid)
+	for i, pid := range e.pids {
+		time.Sleep(500 * time.Millisecond)
+		err := e.Step([]bool{false, false, false, false, false, false, false, false}, i)
+		if err != nil {
+			fmt.Printf("an error occurred while killing doom, %v", err)
+		}
+
+		err = robotgo.Kill(pid)
 		if err != nil {
 			fmt.Println("an error occurred while killing doom", err.Error())
 		}

@@ -145,10 +145,22 @@ func (e *DoomEnvironment) Reset() error {
 }
 
 func (e *DoomEnvironment) Step(acts []bool, env int) error {
-	coolown := 500 * time.Millisecond
+	//coolown := 500 * time.Millisecond
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	for i, act := range acts {
+		if act {
+			strAction, exist := e.GetAction(i)
+			if !exist {
+				return errors.New("action not in action space")
+			}
+			fmt.Printf("KeyDown %s\n", strAction)
+			err := robotgo.KeyTap(strAction, e.pids[env])
+			if err != nil {
+				return fmt.Errorf("KeyDown falied: %w", err)
+			}
+		}
+
 		//strAction, exist := e.GetAction(i)
 		//if !exist {
 		//	return errors.New("action not in action space")
@@ -157,31 +169,32 @@ func (e *DoomEnvironment) Step(acts []bool, env int) error {
 		//if err != nil {
 		//	return fmt.Errorf("KeyDown falied: %w", err)
 		//}
-		if e.previousAction[i].Add(coolown).Before(time.Now()) {
-			if act {
-				strAction, exist := e.GetAction(i)
-				if !exist {
-					return errors.New("action not in action space")
-				}
-				fmt.Printf("KeyDown %s\n", strAction)
-				err := robotgo.KeyToggle(strAction, e.pids[env])
-				if err != nil {
-					return fmt.Errorf("KeyDown falied: %w", err)
-				}
-				e.previousAction[i] = time.Now()
-			} else if !e.previousAction[i].IsZero() && !act {
-				strAction, exist := e.GetAction(i)
-				if !exist {
-					return errors.New("action not in action space")
-				}
-				fmt.Printf("KeyUp %s\nw", strAction)
-				err := robotgo.KeyToggle(strAction, e.pids[env], "up")
-				if err != nil {
-					return fmt.Errorf("KeyUpw falied: %w", err)
-				}
-				e.previousAction[i] = time.Time{}
-			}
-		}
+
+		//if e.previousAction[i].Add(coolown).Before(time.Now()) {
+		//	if act {
+		//		strAction, exist := e.GetAction(i)
+		//		if !exist {
+		//			return errors.New("action not in action space")
+		//		}
+		//		fmt.Printf("KeyDown %s\n", strAction)
+		//		err := robotgo.KeyToggle(strAction, e.pids[env])
+		//		if err != nil {
+		//			return fmt.Errorf("KeyDown falied: %w", err)
+		//		}
+		//		e.previousAction[i] = time.Now()
+		//	} else if !e.previousAction[i].IsZero() && !act {
+		//		strAction, exist := e.GetAction(i)
+		//		if !exist {
+		//			return errors.New("action not in action space")
+		//		}
+		//		fmt.Printf("KeyUp %s\nw", strAction)
+		//		err := robotgo.KeyToggle(strAction, e.pids[env], "up")
+		//		if err != nil {
+		//			return fmt.Errorf("KeyUpw falied: %w", err)
+		//		}
+		//		e.previousAction[i] = time.Time{}
+		//	}
+		//}
 	}
 
 	return nil

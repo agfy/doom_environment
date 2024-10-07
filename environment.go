@@ -156,7 +156,7 @@ func (e *DoomEnvironment) Step(acts []bool, env int) error {
 				return errors.New("action not in action space")
 			}
 			fmt.Printf("KeyDown %s\n", strAction)
-			err := robotgo.KeyPress(strAction, e.pids[env])
+			err := robotgo.KeyPress(strAction)
 			if err != nil {
 				return fmt.Errorf("KeyDown falied: %w", err)
 			}

@@ -146,6 +146,7 @@ func (e *DoomEnvironment) Reset() error {
 
 func (e *DoomEnvironment) Step(acts []bool, env int) error {
 	//coolown := 500 * time.Millisecond
+	robotgo.KeySleep = 100
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	for i, act := range acts {

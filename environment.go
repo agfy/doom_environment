@@ -146,7 +146,7 @@ func (e *DoomEnvironment) Reset() error {
 
 func (e *DoomEnvironment) Step(acts []bool, env int) error {
 	//coolown := 500 * time.Millisecond
-	robotgo.KeySleep = 500
+	//robotgo.KeySleep = 500
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	for i, act := range acts {
@@ -156,7 +156,7 @@ func (e *DoomEnvironment) Step(acts []bool, env int) error {
 				return errors.New("action not in action space")
 			}
 			fmt.Printf("KeyDown %s\n", strAction)
-			err := robotgo.KeyTap(strAction, e.pids[env])
+			err := robotgo.KeyPress(strAction, e.pids[env])
 			if err != nil {
 				return fmt.Errorf("KeyDown falied: %w", err)
 			}

@@ -151,6 +151,7 @@ func (e *DoomEnvironment) Step(acts []bool, env int) error {
 	defer e.mutex.Unlock()
 
 	err := robotgo.KeyTap("w")
+	time.Sleep(100 * time.Millisecond)
 	if err != nil {
 		return fmt.Errorf("KeyTap falied: %w", err)
 	}

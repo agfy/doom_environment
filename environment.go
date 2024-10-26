@@ -150,9 +150,9 @@ func (e *DoomEnvironment) Step(acts []bool, env int) error {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
-	err := robotgo.KeyPress("w")
+	err := robotgo.KeyTap("w")
 	if err != nil {
-		return fmt.Errorf("KeyDown falied: %w", err)
+		return fmt.Errorf("KeyTap falied: %w", err)
 	}
 	//for i, act := range acts {
 	//if act {

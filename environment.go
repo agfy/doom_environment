@@ -7,6 +7,7 @@ import (
 	"github.com/agfy/doom_environment/image_comparer"
 	"github.com/go-vgo/robotgo"
 	"image"
+	"math/rand"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -219,34 +220,65 @@ func (e *DoomEnvironment) GetObservation(env int) image.Image {
 	return image_comparer.Samplify(e.GetImage(env), e.samples)
 }
 
-func (e *DoomEnvironment) GetInput(env int) []int {
+func (e *DoomEnvironment) GetInput(env, fps int) []int {
 	obs := e.GetObservation(env)
 
 	maxColourValue := 0xFFFF
 	bounds := obs.Bounds()
 	result := make([]int, 3*bounds.Max.Y*bounds.Max.X)
 	var r, g, b uint32
-	for x := 0; x < bounds.Max.X; x++ {
-		for y := 0; y < bounds.Max.Y; y++ {
-			r, g, b, _ = obs.At(x, y).RGBA()
-			signalR := 9 * int(r) / maxColourValue
-			if signalR > 8 {
-				signalR = 8
-			}
-			signalG := 9 * int(g) / maxColourValue
-			if signalG > 8 {
-				signalG = 8
-			}
-			signalB := 9 * int(b) / maxColourValue
-			if signalB > 8 {
-				signalB = 8
-			}
+	if 3*bounds.Max.Y*bounds.Max.X < fps {
+		for x := 0; x < bounds.Max.X; x++ {
+			for y := 0; y < bounds.Max.Y; y++ {
+				r, g, b, _ = obs.At(x, y).RGBA()
+				signalR := 9 * int(r) / maxColourValue
+				if signalR > 8 {
+					signalR = 8
+				}
+				signalG := 9 * int(g) / maxColourValue
+				if signalG > 8 {
+					signalG = 8
+				}
+				signalB := 9 * int(b) / maxColourValue
+				if signalB > 8 {
+					signalB = 8
+				}
 
-			result[3*(x+y*bounds.Max.X)] = signalR
-			result[3*(x+y*bounds.Max.X)+1] = signalG
-			result[3*(x+y*bounds.Max.X)+2] = signalB
+				result[3*(x+y*bounds.Max.X)] = signalR
+				result[3*(x+y*bounds.Max.X)+1] = signalG
+				result[3*(x+y*bounds.Max.X)+2] = signalB
+			}
+		}
+	} else {
+		for i := 0; i < fps; i++ {
+			rndInt := rand.Intn(3 * bounds.Max.Y * bounds.Max.X)
+			randIntDivided := rndInt / 3
+			y := randIntDivided / bounds.Max.X
+			x := randIntDivided - y*bounds.Max.X
+
+			r, g, b, _ = obs.At(x, y).RGBA()
+			if 3*randIntDivided == rndInt {
+				signalR := 9 * int(r) / maxColourValue
+				if signalR > 8 {
+					signalR = 8
+				}
+				result[rndInt] = signalR
+			} else if 3*randIntDivided+1 == rndInt {
+				signalG := 9 * int(g) / maxColourValue
+				if signalG > 8 {
+					signalG = 8
+				}
+				result[rndInt] = signalG
+			} else {
+				signalB := 9 * int(b) / maxColourValue
+				if signalB > 8 {
+					signalB = 8
+				}
+				result[rndInt] = signalB
+			}
 		}
 	}
+
 	return result
 }
 
